@@ -1,0 +1,9 @@
+<h4>Error interno del servidor, refresque la pagina</h4>
+<ng-container *ngIf="error">
+    <h5 class="text-danger">Error: {{error}}</h5>
+    <p>Que hacer ahora?</p>
+    <ol>
+        <li>Abrir la pestaña de desarrollo</li>
+        <li>Ver la request erronea en Network</li>
+    </ol>
+</ng-container>
