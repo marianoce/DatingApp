@@ -1,4 +1,6 @@
 import { EventEmitter, Component, Output, Input, OnInit } from '@angular/core';
+import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { AccountService } from '../_services/account.service';
 
@@ -10,21 +12,51 @@ import { AccountService } from '../_services/account.service';
 export class RegisterComponent implements OnInit {
 
   @Output() cancelRegister = new EventEmitter();
+  registerForm: FormGroup;
+  maxDate: Date;
+  validationErrors : string[] = [];
 
-  model: any = {};
-  constructor(private accountService: AccountService, private toastr: ToastrService) { }
+  constructor(private accountService: AccountService, private toastr: ToastrService, private fb: FormBuilder, private router: Router) { }
 
   ngOnInit(): void {
+    this.initializeForm();
+    this.maxDate = new Date();
+    this.maxDate.setFullYear(this.maxDate.getFullYear() - 18);
   }
 
   register() {
-    this.accountService.register(this.model).subscribe(response => {
-      this.cancel();
-    });
+    this.accountService.register(this.registerForm.value).subscribe(response => {
+      this.router.navigateByUrl('/members');
+    }, error => {
+      console.log(error);
+      this.validationErrors = error;
+    });  
   }
 
   cancel() {
     this.cancelRegister.emit(false);
   }
 
+  matchValues(matchTo: string) {
+    return (control: AbstractControl) => {
+      return control?.value === control?.parent?.controls[matchTo].value ? null : { isMatching: true }
+    }
+  }
+
+  initializeForm() {
+    this.registerForm = this.fb.group({
+      gender: ['male'],
+      username: ['', Validators.required],
+      knownAs: ['', Validators.required],
+      dateOfBirth: ['', Validators.required],
+      city: ['', Validators.required],
+      country: ['', Validators.required],
+      password: ['', [Validators.maxLength(8), Validators.minLength(4), Validators.required]],
+      confirmPassword: ['', [Validators.required, this.matchValues('password')]]
+    });
+
+    this.registerForm.controls.password.valueChanges.subscribe(() => {
+      this.registerForm.controls.confirmPassword.updateValueAndValidity();
+    });
+  }
 }
