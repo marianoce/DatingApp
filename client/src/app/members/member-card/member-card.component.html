@@ -6,7 +6,7 @@
                 <fa-icon [icon]="faUser"></fa-icon></button></li>
             <li class="list-inline-item"><button (click)="addLike(member)" class="btn btn-primary">
                 <fa-icon [icon]="faHeart"></fa-icon></button></li>
-            <li class="list-inline-item"><button class="btn btn-primary">
+            <li class="list-inline-item"><button routerLink="/members/{{member.userName}}" [queryParams]="{ tab: 3 }" class="btn btn-primary">
                 <fa-icon [icon]="faEnvelope"></fa-icon></button></li>
         </ul>
     </div>
