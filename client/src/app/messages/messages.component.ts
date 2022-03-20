@@ -3,6 +3,7 @@ import { Message } from '../_models/message';
 import { Pagination } from '../_models/pagination';
 import { MessageService } from '../_services/message.service';
 import { faEnvelope, faEnvelopeOpen, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
+import { ConfirmService } from '../_services/confirm.service';
 
 @Component({
   selector: 'app-messages',
@@ -21,7 +22,7 @@ export class MessagesComponent implements OnInit {
   faPaperPlane = faPaperPlane;
   loading = false;
 
-  constructor(private messageService: MessageService) { }
+  constructor(private messageService: MessageService, private confirmService: ConfirmService) { }
 
   ngOnInit(): void {
   }
@@ -43,8 +44,13 @@ export class MessagesComponent implements OnInit {
   }
 
   deleteMessage(id: number) {
-    this.messageService.deleteMessage(id).subscribe(() => {
-      this.messages.splice(this.messages.findIndex(p => p.id === id), 1);
+
+    this.confirmService.confirm('Confirm delete message', 'this cannot be undone').subscribe(result => {
+      if (result) {
+        this.messageService.deleteMessage(id).subscribe(() => {
+          this.messages.splice(this.messages.findIndex(p => p.id === id), 1);
+        });
+      }
     });
   }
 
