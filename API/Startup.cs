@@ -43,7 +43,7 @@ namespace API
             services.AddControllers();
             services.AddCors();
             services.AddIdentityServices(_config);
-            services.AddSignalR();
+            services.AddSignalR(o => o.EnableDetailedErrors = true);
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "API", Version = "v1" });

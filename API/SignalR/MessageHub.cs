@@ -18,7 +18,7 @@ namespace SignalR
         public PresenceTracker _tracker { get; }
         public IUnitOfWork _unitOfWork { get; set; }
 
-        public MessageHub(IMessageRepository messageRepository, IMapper mapper, IHubContext<PresenceHub> presenceHub, PresenceTracker tracker, IUnitOfWork unitOfWork)
+        public MessageHub(IMapper mapper, IHubContext<PresenceHub> presenceHub, PresenceTracker tracker, IUnitOfWork unitOfWork)
         {
             this._unitOfWork = unitOfWork;
             this._presenceHub = presenceHub;
@@ -28,19 +28,20 @@ namespace SignalR
 
         public override async Task OnConnectedAsync()
         {
+            Console.WriteLine("linea 1");
             var httpContext = Context.GetHttpContext();
             var otherUser = httpContext.Request.Query["user"].ToString();
             var groupName = GetGroupName(Context.User.GetUsername(), otherUser);
             await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
             var group = await AddToGroup(groupName);
             await Clients.Group(groupName).SendAsync("UpdatedGroup", group);
-            await AddToGroup(groupName);
 
+            Console.WriteLine("linea 2");
             var messages = await _unitOfWork.MessageRepository.GetMessageThread(Context.User.GetUsername(), otherUser);
 
             if(_unitOfWork.HasChanges())
                 await _unitOfWork.Complete();
-
+            Console.WriteLine("linea 3");
             await Clients.Caller.SendAsync("ReceiveMessageThread", messages);
         }
 
